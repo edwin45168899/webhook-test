@@ -40,6 +40,40 @@ PORT=3000 node server.js
 ### 3. VS Code 除錯
 本專案已包含 `.vscode/launch.json`，您可以直接在 VS Code 中按下 `F5` 啟動除錯模式。
 
+## ⚙️ 環境變數設定 (.env)
+
+本專案支援透過 `.env` 檔案進行詳細設定。請複製 `.env.example`（若無則直接建立 `.env`）並依需求修改：
+
+```env
+# 伺服器監聽埠口 (預設: 9999)
+PORT=9999
+
+# 警報音效設定 (僅 macOS 有效)
+# 預設: Glass
+ALERT_SOUND=Glass
+
+# 音量設定
+# 範圍: 0.0 ~ 1.0 (正常音量), >1.0 (放大)
+# 預設: 0.5
+ALERT_VOLUME=0.5
+```
+
+### 🎵 可用音效列表 (macOS)
+您可以將 `ALERT_SOUND` 設定為以下任一值：
+- `Glass` (預設，清脆玻璃聲)
+- `Bottle` (類似吹瓶口的聲音)
+- `Funk` (短促的 Funk 音效)
+- `Hero` (響亮的號角聲)
+- `Morse` (摩斯密碼聲)
+- `Ping` (金屬聲)
+- `Pop` (氣泡聲)
+- `Purr` (呼嚕聲)
+- `Sosumi` (Sosumi 音效)
+- `Submarine` (潛水艇聲納)
+- `Tink` (清脆叮聲)
+
+> ⚠️ **注意**：修改 `.env` 檔案後，必須**重新啟動伺服器** (或重新開始除錯) 才會生效。
+
 ## ⚙️ Grafana 設定範例
 
 在 Grafana 的 **Contact Points** 設定中：
