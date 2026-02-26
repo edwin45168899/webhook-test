@@ -37,18 +37,14 @@ app.get('/health', (req, res) => res.status(200).json({ status: 'ok' }));
 
 app.post('/test', (req, res) => {
   console.log(`${COLORS.YELLOW}🚀 收到 Grafana 通知:${COLORS.RESET}`);
-  // console.dir supports colored output natively
   console.dir(req.body, { depth: null, colors: true });
 
-  // Play sound if status is firing
   if (req.body && req.body.status === 'firing') {
-    // Check if running on macOS
     if (process.platform === 'darwin') {
       const soundName = process.env.ALERT_SOUND || 'Glass';
       const volume = process.env.ALERT_VOLUME || '1';
       const soundPath = `/System/Library/Sounds/${soundName}.aiff`;
 
-      // macOS system sound with volume control
       exec(`afplay -v ${volume} "${soundPath}"`, (err) => {
         if (err) console.error('無法播放音效:', err);
       });
@@ -67,18 +63,22 @@ app.use((err, req, res, next) => {
   res.status(400).send('Bad Request');
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`${COLORS.GREEN}伺服器啟動在 http://localhost:${PORT}/test${COLORS.RESET}`);
-});
-
-// Graceful Shutdown
-const shutdown = (signal) => {
-  console.log(`${COLORS.YELLOW}收到 ${signal}，正在關閉伺服器...${COLORS.RESET}`);
-  server.close(() => {
-    console.log(`${COLORS.GREEN}伺服器已關閉${COLORS.RESET}`);
-    process.exit(0);
+// Start server if run directly
+if (require.main === module) {
+  const server = app.listen(PORT, () => {
+    console.log(`${COLORS.GREEN}伺服器啟動在 http://localhost:${PORT}/test${COLORS.RESET}`);
   });
-};
 
-process.on('SIGTERM', () => shutdown('SIGTERM'));
-process.on('SIGINT', () => shutdown('SIGINT'));
+  const shutdown = (signal) => {
+    console.log(`${COLORS.YELLOW}收到 ${signal}，正在關閉伺服器...${COLORS.RESET}`);
+    server.close(() => {
+      console.log(`${COLORS.GREEN}伺服器已關閉${COLORS.RESET}`);
+      process.exit(0);
+    });
+  };
+
+  process.on('SIGTERM', () => shutdown('SIGTERM'));
+  process.on('SIGINT', () => shutdown('SIGINT'));
+}
+
+module.exports = app;
