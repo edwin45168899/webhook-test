@@ -7,6 +7,7 @@
 本專案的建立是因為在使用 Grafana 設定 Contact Points (Telegram) 時遇到訊息無法送達且無錯誤訊息的狀況。為了排查問題，我們建立這個 Webhook Server 來直接攔截並顯示 Grafana 發出的 Alert Payload。
 
 透過這個工具，你可以：
+
 1. 確認 Grafana 是否真的有發出 Alert。
 2. 檢視 Grafana 發出的完整 JSON 資料結構。
 3. 驗證 label 與 annotation 的內容是否符合預期。
@@ -31,14 +32,17 @@
 ## 🛠️ 安裝與執行
 
 ### 前置需求
+
 - Node.js (建議 v18+)
 
 ### 1. 安裝依賴
+
 ```bash
 npm install express
 ```
 
 ### 2. 啟動伺服器
+
 ```bash
 # 預設監聽 9999 port
 node server.js
@@ -48,6 +52,7 @@ PORT=3000 node server.js
 ```
 
 ### 3. VS Code 除錯
+
 本專案已包含 `.vscode/launch.json`，您可以直接在 VS Code 中按下 `F5` 啟動除錯模式。
 
 ## ⚙️ 環境變數設定 (.env)
@@ -82,16 +87,21 @@ ALERT_VOLUME=0.5
 ```
 
 ### 🔐 API Token 驗證
+
 若設定了 `API_TOKEN`，請求 `/test` 端點時須在 Header 加入 Token：
+
 ```bash
 curl -X POST http://localhost:9999/test \
   -H "X-API-TOKEN: your-secret-token" \
   -d '{}'
 ```
+
 未提供正確 Token 時會收到 `401 Unauthorized`。
 
 ### 🎵 可用音效列表 (macOS)
+
 您可以將 `ALERT_SOUND` 設定為以下任一值：
+
 - `Glass` (預設，清脆玻璃聲)
 - `Bottle` (類似吹瓶口的聲音)
 - `Funk` (短促的 Funk 音效)
@@ -108,13 +118,14 @@ curl -X POST http://localhost:9999/test \
 
 ## 📡 API 端點
 
-| 端點 | 方法 | 說明 |
-|------|------|------|
-| `/health` | GET | 服務健康檢查 |
-| `/stats` | GET | 請求統計資訊 |
-| `/test` | POST | Grafana Webhook 接收端點 |
+| 端點      | 方法 | 說明                     |
+| --------- | ---- | ------------------------ |
+| `/health` | GET  | 服務健康檢查             |
+| `/stats`  | GET  | 請求統計資訊             |
+| `/test`   | POST | Grafana Webhook 接收端點 |
 
 ### /test 請求範例
+
 ```bash
 curl -X POST http://localhost:9999/test \
   -H "Content-Type: application/json" \

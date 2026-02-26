@@ -10,14 +10,14 @@ const ALLOWED_IPS = process.env.ALLOWED_IPS ? process.env.ALLOWED_IPS.split(',')
 
 // ANSI Color Codes
 const COLORS = {
-  RESET: "\x1b[0m",
-  CYAN: "\x1b[36m",
-  GREEN: "\x1b[32m",
-  YELLOW: "\x1b[33m",
-  RED: "\x1b[31m",
-  MAGENTA: "\x1b[35m",
-  DIM: "\x1b[2m",
-  BLUE: "\x1b[34m"
+  RESET: '\x1b[0m',
+  CYAN: '\x1b[36m',
+  GREEN: '\x1b[32m',
+  YELLOW: '\x1b[33m',
+  RED: '\x1b[31m',
+  MAGENTA: '\x1b[35m',
+  DIM: '\x1b[2m',
+  BLUE: '\x1b[34m'
 };
 
 // CORS middleware
@@ -35,8 +35,11 @@ app.use((req, res, next) => {
 const ipWhitelist = (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
   const clientIp = ip.replace(/^::ffff:/, '');
-  
-  if (ALLOWED_IPS.length > 0 && !ALLOWED_IPS.some(allowed => clientIp === allowed.trim() || allowed.trim() === '*')) {
+
+  if (
+    ALLOWED_IPS.length > 0 &&
+    !ALLOWED_IPS.some((allowed) => clientIp === allowed.trim() || allowed.trim() === '*')
+  ) {
     console.log(`${COLORS.RED}🚫 IP 被阻擋${COLORS.RESET} | IP: ${clientIp} | 不在白名單中`);
     return res.status(403).json({ error: 'Forbidden: IP not allowed' });
   }
@@ -55,23 +58,27 @@ const stats = {
 // Rate Limiting
 const rateLimitStore = {};
 setInterval(() => {
-  Object.keys(rateLimitStore).forEach(ip => rateLimitStore[ip] = 0);
+  Object.keys(rateLimitStore).forEach((ip) => (rateLimitStore[ip] = 0));
 }, 60000);
 
 const rateLimit = (req, res, next) => {
   const ip = req.ip || req.connection.remoteAddress;
   rateLimitStore[ip] = (rateLimitStore[ip] || 0) + 1;
-  
+
   if (rateLimitStore[ip] > RATE_LIMIT) {
     stats.blockedRequests++;
-    console.log(`${COLORS.RED}🚫 請求被阻擋 - 超過限流次數${COL} | IP:ORS.RESET ${ip} | 次數: ${rateLimitStore[ip]}/${RATE_LIMIT}/分鐘`);
+    console.log(
+      `${COLORS.RED}🚫 請求被阻擋 - 超過限流次數${COLORS.RESET} | IP: ${ip} | 次數: ${rateLimitStore[ip]}/${RATE_LIMIT}/分鐘`
+    );
     return res.status(429).json({ error: 'Too Many Requests' });
   }
-  
+
   if (rateLimitStore[ip] > RATE_LIMIT * 0.8) {
-    console.log(`${COLORS.YELLOW}⚠️  逼近限流閾值${COLORS.RESET} | IP: ${ip} | 次數: ${rateLimitStore[ip]}/${RATE_LIMIT}/分鐘`);
+    console.log(
+      `${COLORS.YELLOW}⚠️  逼近限流閾值${COLORS.RESET} | IP: ${ip} | 次數: ${rateLimitStore[ip]}/${RATE_LIMIT}/分鐘`
+    );
   }
-  
+
   next();
 };
 
@@ -86,7 +93,7 @@ app.use((req, res, next) => {
 const validateToken = (req, res, next) => {
   const token = req.headers['x-api-token'];
   const expectedToken = process.env.API_TOKEN;
-  
+
   if (expectedToken && token !== expectedToken) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
@@ -96,27 +103,33 @@ const validateToken = (req, res, next) => {
 // Payload validation for Grafana webhook
 const validatePayload = (req, res, next) => {
   const body = req.body;
-  
+
   if (!body || typeof body !== 'object') {
     console.log(`${COLORS.RED}⚠️  無效 Payload${COLORS.RESET} | 原因: 請求體為空或格式錯誤`);
     return res.status(400).json({ error: 'Invalid payload: empty or malformed JSON' });
   }
-  
+
   const { status, alerts } = body;
-  
+
   if (!status || !['firing', 'resolved'].includes(status)) {
-    console.log(`${COLORS.RED}⚠️  無效 Payload${COLORS.RESET} | 原因: 缺少 status 欄位或值不正確 (firing/resolved)`);
+    console.log(
+      `${COLORS.RED}⚠️  無效 Payload${COLORS.RESET} | 原因: 缺少 status 欄位或值不正確 (firing/resolved)`
+    );
     return res.status(400).json({ error: 'Invalid payload: missing or invalid status field' });
   }
-  
-  console.log(`${COLORS.GREEN}✅ Payload 驗證通過${COLORS.RESET} | status: ${status} | alerts: ${alerts?.length || 0} 個`);
+
+  console.log(
+    `${COLORS.GREEN}✅ Payload 驗證通過${COLORS.RESET} | status: ${status} | alerts: ${alerts?.length || 0} 個`
+  );
   next();
 };
 
 // Log middleware with timestamp
 app.use((req, res, next) => {
   const timestamp = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
-  console.log(`${COLORS.DIM}[${timestamp}]${COLORS.RESET} ${COLORS.BLUE}[${req.id}]${COLORS.RESET} ${COLORS.GREEN}${req.method}${COLORS.RESET} ${COLORS.CYAN}${req.url}${COLORS.RESET}`);
+  console.log(
+    `${COLORS.DIM}[${timestamp}]${COLORS.RESET} ${COLORS.BLUE}[${req.id}]${COLORS.RESET} ${COLORS.GREEN}${req.method}${COLORS.RESET} ${COLORS.CYAN}${req.url}${COLORS.RESET}`
+  );
   next();
 });
 
@@ -148,14 +161,17 @@ app.post('/test', ipWhitelist, rateLimit, validateToken, validatePayload, (req, 
     }
   }
 
-  const endTimestamp = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
+  const endTimestamp = new Date().toLocaleString('zh-TW', {
+    timeZone: 'Asia/Taipei',
+    hour12: false
+  });
   console.log(`${COLORS.MAGENTA}⏱️  接收完成時間: ${endTimestamp}${COLORS.RESET}\n`);
 
   res.status(200).json({ status: 'ok', message: 'received' });
 });
 
 // Error handling middleware
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
   console.error(`${COLORS.RED}❌ 發生錯誤:${COLORS.RESET}`, err.message);
   res.status(400).send('Bad Request');
 });

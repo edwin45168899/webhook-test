@@ -17,9 +17,7 @@ describe('Webhook Server', () => {
 
   describe('POST /test', () => {
     it('should return ok with received message', async () => {
-      const res = await request(app)
-        .post('/test')
-        .send({ alert: 'test' });
+      const res = await request(app).post('/test').send({ alert: 'test' });
       expect(res.status).toBe(200);
       expect(res.body).toEqual({ status: 'ok', message: 'received' });
     });
