@@ -58,7 +58,7 @@ app.post('/test', (req, res) => {
   const endTimestamp = new Date().toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', hour12: false });
   console.log(`${COLORS.MAGENTA}⏱️  接收完成時間: ${endTimestamp}${COLORS.RESET}\n`);
 
-  res.status(200).send('OK');
+  res.status(200).json({ status: 'ok', message: 'received' });
 });
 
 // Error handling middleware
